@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perpustakaan Digital Pribadi Bro Elite</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0; /* Ubah padding body jadi 0 untuk background full screen */
+            background-color: #f4f4f4;
+            color: #333;
+            line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            overflow: hidden; /* Penting untuk animasi background */
+        }
+
+        /* Styling untuk Canvas background */
+        #backgroundCanvas {
+            position: fixed; /* Tetap di layar */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Pastikan di belakang semua konten */
+            background-color: #f4f4f4; /* Warna dasar background */
+            transition: background-color 0.3s ease;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative; /* Penting agar container tetap di atas canvas */
+            z-index: 1; /* Pastikan container di atas canvas */
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        p {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #555;
+        }
+
+        #kotakCari {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+            background-color: #fff;
+            color: #333;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        /* CSS dasar untuk tombol "Bawa Aku ke Catatan Acak!" */
+        #klik {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: none;
+            background-color: #28a745;
+            color: white;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* Efek yang diterapkan saat tombol "Bawa Aku ke Catatan Acak!" diklik */
+        #klik.effect {
+            transform: scale(0.95);
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3) inset;
+        }
+
+        /* Memastikan tombol "Bawa Aku ke Catatan Acak!" kembali ke state normal */
+        #klik:not(.effect) {
+            transform: scale(1);
+            box-shadow: none;
+        }
+
+        #daftarCatatan {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            overflow: hidden;
+            transition: border-color 0.3s ease;
+        }
+
+        #daftarCatatan li {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            background-color: #fdfdfd;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        #daftarCatatan li:last-child {
+            border-bottom: none;
+        }
+
+        #daftarCatatan a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: 500;
+            display: block;
+            transition: color 0.3s ease;
+        }
+
+        #daftarCatatan a:hover {
+            text-decoration: underline;
+            color: #0056b3;
+        }
+
+        /* --- DARK MODE STYLES --- */
+        body.dark-mode {
+            background-color: #282c34;
+            color: #abb2bf;
+        }
+        body.dark-mode #backgroundCanvas { /* Update canvas color for dark mode */
+            background-color: #282c34;
+        }
+
+        body.dark-mode .container {
+            background-color: #3a404a;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        body.dark-mode h1 {
+            color: #61afef;
+        }
+
+        body.dark-mode p {
+            color: #abb2bf;
+        }
+
+        body.dark-mode #kotakCari {
+            background-color: #4b5263;
+            color: #abb2bf;
+            border-color: #5c6370;
+        }
+
+        body.dark-mode #daftarCatatan {
+            border-color: #4b5263;
+        }
+
+        body.dark-mode #daftarCatatan li {
+            background-color: #3a404a;
+            border-color: #4b5263;
+        }
+
+        body.dark-mode #daftarCatatan a {
+            color: #98c379;
+        }
+
+        body.dark-mode #daftarCatatan a:hover {
+            color: #e5c07b;
+        }
+
+        /* --- MODE TOGGLE BUTTON --- */
+        #modeToggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: background-color 0.3s ease, transform 0.1s ease-out;
+        }
+
+        #modeToggle:hover {
+            background-color: #5a6268;
+        }
+
+        #modeToggle:active {
+            transform: scale(0.98);
+        }
+
+        body.dark-mode #modeToggle {
+            background-color: #5c6370;
+        }
+        body.dark-mode #modeToggle:hover {
+            background-color: #4b5263;
+        }
+    </style>
+</head>
+<body>
+    <button id="modeToggle">Mode Gelap</button>
+
+    <canvas id="backgroundCanvas"></canvas>
+
+    <div class="container">
+        <h1>Perpustakaan Digital Pribadi Bro Elite</h1>
+        <p>Cari catatan pentingmu di sini!</p>
+
+        <input type="text" id="kotakCari" placeholder="Ketik judul catatan...">
+
+        <button id="klik">
+            Bawa Aku ke Catatan Acak!
+        </button>
+
+        <audio id="sfx">
+            <source src="......" type="audio/mpeg">
+        </audio>
+
+             <!-- salin kode dibawah samakan terus ganti nama filenya itu aja ,simple🗿👍-->
+        <ul id="daftarCatatan">
+            <li><a href="catatan/belajar-js.html">Belajar Dasar JavaScript</a></li>
+            <li><a href="catatan/trik-css.html">Trik CSS Flexbox Modern</a></li>
+            <li><a href="catatan/ide-proyek.html">Kumpulan Ide Proyek Web Keren</a></li>
+            <li><a href="catatan/perintah-git.html">Perintah Dasar Git yang Wajib Hafal</a></li>
+            <li><a href="catatan/setup-laptop.html">Cara Setup Laptop Baru untuk Ngoding</a></li>
+            <li><a href="catatan/historyGue.html">Tentang kepribadian gue?</a></li>        
+            <li><a href="catatan/about-me.html">Awal mula gue jatuh cinta dunia it</a></li>
+            <li><a href="catatan/ikilo.html">kata kata manis,bukan pemanis</a></li>
+        </ul>
+    </div>
+
+    <script>      //INTINYA DUA YG DIUBAH,ini⤵️dan ini🔝 ,DI FILE HTML INI KALAU MAU TAMBAH CATATAN 🗿👍
+        const btn = document.getElementById("klik");
+        const sfx = document.getElementById("sfx"); 
+        const kotakCari = document.getElementById("kotakCari");
+        const daftarLinkCatatan = document.querySelectorAll("#daftarCatatan li a");
+        const modeToggleBtn = document.getElementById("modeToggle");
+        const body = document.body;
+
+     // kalau mau tambah catatan,salin kodenya samakan terus ganti nama file nya ,harus sama !,entar error🗿🤙
+        const semuaCatatan = [
+            'catatan/belajar-js.html',
+            'catatan/trik-css.html',
+            'catatan/ide-proyek.html',
+            'catatan/perintah-git.html',
+            'catatan/setup-laptop.html',
+            'catatan/historyGue.html',
+            'catatan/about-me.html',
+            'catatan/ikilo.html',
+          ];
+
+        // --- Variabel untuk Mengontrol Pemutaran Suara ---
+        let canPlaySoundFlag = true;
+        const soundCooldown = 150; // Cooldown 150ms
+
+        function playClickSound() {
+            if (sfx && canPlaySoundFlag) {
+                canPlaySoundFlag = false;
+                sfx.currentTime = 0;
+                sfx.play();
+                setTimeout(() => {
+                    canPlaySoundFlag = true;
+                }, soundCooldown);
+            }
+        }
+
+        // --- Event Listener untuk Tombol "Bawa Aku ke Catatan Acak!" ---
+        btn.addEventListener("click", () => {
+            playClickSound();
+            btn.classList.add("effect");
+            const halamanAcak = semuaCatatan[Math.floor(Math.random() * semuaCatatan.length)];
+            setTimeout(() => {
+                btn.classList.remove("effect");
+                window.location.href = halamanAcak;
+            }, 200);
+        });
+
+        // --- Event Listener untuk Kotak Pencarian (saat ada input) ---
+        kotakCari.addEventListener("input", () => {
+            playClickSound();
+            cariCatatan();
+        });
+
+        // --- Event Listener untuk Setiap Link Catatan ---
+        daftarLinkCatatan.forEach(link => {
+            link.addEventListener("click", () => {
+                playClickSound();
+            });
+        });
+
+        // --- Fungsi untuk Fitur Pencarian ---
+        function cariCatatan() {
+            const inputan = kotakCari.value.toLowerCase();
+            const semuaItem = document.querySelectorAll('#daftarCatatan li');
+
+            semuaItem.forEach(item => {
+                const link = item.querySelector('a');
+                if (link) {
+                    const judul = link.textContent.toLowerCase();
+                    if (judul.includes(inputan)) {
+                        item.style.display = "";
+                    } else {
+                        item.style.display = "none";
+                    }
+                }
+            });
+        }
+
+        // --- LOGIKA DARK/LIGHT MODE ---
+        function applyMode(mode) {
+            if (mode === 'dark') {
+                body.classList.add('dark-mode');
+                modeToggleBtn.textContent = 'Mode Terang';
+            } else {
+                body.classList.remove('dark-mode');
+                modeToggleBtn.textContent = 'Mode Gelap';
+            }
+            // Update canvas background color immediately when mode changes
+            const canvas = document.getElementById('backgroundCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = body.classList.contains('dark-mode') ? '#282c34' : '#f4f4f4'; // Match body background
+            ctx.fillRect(0, 0, canvas.width, canvas.height); // Clear and redraw with new color
+        }
+
+        const savedMode = localStorage.getItem('themeMode');
+        if (savedMode) {
+            applyMode(savedMode);
+        } else {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                applyMode('dark');
+            } else {
+                applyMode('light');
+            }
+        }
+ 
+        modeToggleBtn.addEventListener("click", () => {
+            playClickSound(); // Mainkan suara saat tombol mode toggle diklik
+            if (body.classList.contains('dark-mode')) {
+                applyMode('light');
+                localStorage.setItem('themeMode', 'light');
+            } else {
+                applyMode('dark');
+                localStorage.setItem('themeMode', 'dark');
+            }
+        });
+
+        // --- LOGIKA ANIMASI LATAR BELAKANG INTERAKTIF ---
+        const canvas = document.getElementById('backgroundCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let mouse = {
+            x: null,
+            y: null,
+            radius: 150 // Radius interaksi mouse
+        };
+
+        // Atur ukuran canvas
+        function setCanvasSize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            // Pastikan background canvas diperbarui saat ukuran berubah
+            ctx.fillStyle = body.classList.contains('dark-mode') ? '#282c34' : '#f4f4f4';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        setCanvasSize();
+        window.addEventListener('resize', setCanvasSize);
+
+        // Event listener untuk pergerakan mouse
+        window.addEventListener('mousemove', (event) => {
+            mouse.x = event.x;
+            mouse.y = event.y;
+        });
+        window.addEventListener('mouseout', () => { // Reset mouse jika keluar layar
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        // Fungsi Particle (titik)
+        class Particle {
+            constructor(x, y, directionX, directionY, size, color) {
+                this.x = x;
+                this.y = y;
+                this.directionX = directionX;
+                this.directionY = directionY;
+                this.size = size;
+                this.color = color;
+            }
+
+            // Method untuk menggambar particle
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+
+            // Method untuk update posisi particle
+            update() {
+                // Jika particle keluar batas, kembalikan ke sisi lain
+                if (this.x + this.size > canvas.width || this.x - this.size < 0) {
+                    this.directionX = -this.directionX;
+                }
+                if (this.y + this.size > canvas.height || this.y - this.size < 0) {
+                    this.directionY = -this.directionY;
+                }
+
+                this.x += this.directionX;
+                this.y += this.directionY;
+
+                // Interaksi mouse dengan particle
+                if (mouse.x && mouse.y) {
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < mouse.radius + this.size) {
+                        if (mouse.x < this.x && this.x < canvas.width - this.size * 10) {
+                            this.x += 10;
+                        }
+                        if (mouse.x > this.x && this.x > this.size * 10) {
+                            this.x -= 10;
+                        }
+                        if (mouse.y < this.y && this.y < canvas.height - this.size * 10) {
+                            this.y += 10;
+                        }
+                        if (mouse.y > this.y && this.y > this.size * 10) {
+                            this.y -= 10;
+                        }
+                    }
+                }
+                this.draw();
+            }
+        }
+
+        // Fungsi untuk membuat particle
+        function initParticles(num) {
+            particles = [];
+            for (let i = 0; i < num; i++) {
+                let size = Math.random() * 5 + 1; // Ukuran particle
+                let x = Math.random() * (canvas.width - size * 2) + size;
+                let y = Math.random() * (canvas.height - size * 2) + size;
+                let directionX = (Math.random() * 0.4) - 0.2; // Kecepatan X
+                let directionY = (Math.random() * 0.4) - 0.2; // Kecepatan Y
+                let color = 'rgba(170, 178, 191, 0.8)'; // Warna abu-abu transparan
+                // Warna particle akan berubah jika dark mode aktif
+                if (body.classList.contains('dark-mode')) {
+                    color = 'rgba(152, 195, 121, 0.8)'; // Warna hijau muda di dark mode
+                }
+
+                particles.push(new Particle(x, y, directionX, directionY, size, color));
+            }
+        }
+
+        // Fungsi untuk menghubungkan particle
+        function connectParticles() {
+            let opacityValue = 1;
+            for (let a = 0; a < particles.length; a++) {
+                for (let b = a; b < particles.length; b++) {
+                    let distance = ((particles[a].x - particles[b].x) * (particles[a].x - particles[b].x)) +
+                                   ((particles[a].y - particles[b].y) * (particles[a].y - particles[b].y));
+                    if (distance < (canvas.width / 7) * (canvas.height / 7)) { // Jarak antar particle untuk terhubung
+                        opacityValue = 1 - (distance / 20000); // Semakin jauh semakin transparan
+                        ctx.strokeStyle = `rgba(170, 178, 191, ${opacityValue})`;
+                        if (body.classList.contains('dark-mode')) {
+                            ctx.strokeStyle = `rgba(97, 175, 239, ${opacityValue})`; // Warna biru muda di dark mode
+                        }
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[a].x, particles[a].y);
+                        ctx.lineTo(particles[b].x, particles[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        // Fungsi animasi utama
+        function animateParticles() {
+            requestAnimationFrame(animateParticles);
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Bersihkan canvas
+
+            // Update background color in case dark mode changes
+            ctx.fillStyle = body.classList.contains('dark-mode') ? '#282c34' : '#f4f4f4';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+            }
+            connectParticles();
+        }
+
+        // Inisialisasi particle saat halaman dimuat
+        initParticles(100); // Buat 100 particle
+        animateParticles();
+
+        // Update particle colors and number when dark mode is toggled or resized
+        // This is important to adapt the animation to dark mode changes
+        modeToggleBtn.addEventListener('click', () => {
+            initParticles(100); // Re-initialize to update colors
+            animateParticles(); // Restart animation
+        });
+        window.addEventListener('resize', () => {
+             initParticles(100); // Re-initialize on resize
+        });
+
+    </script>
+</body>
+</html>
