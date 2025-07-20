@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kumpulan Ide Proyek</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .kembali {
+            display: inline-block;
+            margin-bottom: 20px;
+            text-decoration: none;
+            color: #0d6efd;
+            font-weight: 500;
+        }
+        .proyek-item {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .proyek-item h3 {
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .tags-container {
+            margin-top: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px; /* Jarak antar tag */
+        }
+        .tag {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            color: white;
+        }
+        .tag.level-mudah { background-color: #28a745; }
+        .tag.level-menengah { background-color: #0d6efd; }
+        .tag.level-sulit { background-color: #dc3545; }
+        .tag.tech { background-color: #6c757d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="kembali">&larr; Kembali ke Daftar Isi</a>
+
+        <h1>Kumpulan Ide Proyek Web Keren</h1>
+
+        <div class="proyek-item">
+            <h3>Website Portofolio Pribadi</h3>
+            <p>Membuat halaman web statis untuk menampilkan profil, skill, dan proyek-proyek yang pernah dibuat.</p>
+            <div class="tags-container">
+                <span class="tag level-mudah">Mudah</span>
+                <span class="tag tech">HTML</span>
+                <span class="tag tech">CSS</span>
+            </div>
+        </div>
+
+        <div class="proyek-item">
+            <h3>Aplikasi Kalkulator Simpel</h3>
+            <p>Membuat kalkulator fungsional yang bisa melakukan operasi dasar (tambah, kurang, kali, bagi) menggunakan JavaScript.</p>
+            <div class="tags-container">
+                <span class="tag level-menengah">Menengah</span>
+                <span class="tag tech">HTML</span>
+                <span class="tag tech">CSS</span>
+                <span class="tag tech">JavaScript</span>
+            </div>
+        </div>
+
+        <div class="proyek-item">
+            <h3>Aplikasi Cuaca (Weather App)</h3>
+            <p>Menampilkan kondisi cuaca suatu kota secara live dengan mengambil data dari API publik (misal: OpenWeatherMap).</p>
+            <div class="tags-container">
+                <span class="tag level-sulit">Sulit</span>
+                <span class="tag tech">JavaScript</span>
+                <span class="tag tech">API</span>
+            </div>
+        </div>
+
+        </div>
+</body>
+</html>
